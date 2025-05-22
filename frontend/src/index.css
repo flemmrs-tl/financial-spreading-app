@@ -1,9 +1,15 @@
 :root {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --primary-color: #076CF2;
+  --primary-dark: #05122E;
+  --secondary-color: #E76C23;
+  --accent-purple: #8064A2;
+  --accent-magenta: #A64D79;
+  --accent-lime: #EEFF41;
 }
 
 html, body, #root {
@@ -20,7 +26,7 @@ code {
 
 a {
   text-decoration: none;
-  color: inherit;
+  color: var(--primary-color);
 }
 
 .full-height {
@@ -44,4 +50,177 @@ a {
 .flex-column {
   display: flex;
   flex-direction: column;
+}
+
+/* Trade Ledger specific styles */
+.tl-primary-bg {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.tl-dark-bg {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+.tl-gradient-bg {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+}
+
+.tl-secondary-bg {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.tl-heading {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.tl-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.tl-button:hover {
+  background-color: #3389F5;
+}
+
+.tl-button-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.tl-button-secondary:hover {
+  background-color: #F08749;
+}
+
+.tl-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Trade Ledger sidebar styles */
+.tl-sidebar {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+.tl-sidebar-item {
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.tl-sidebar-item:hover, .tl-sidebar-item.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tl-sidebar-item-icon {
+  color: white;
+}
+
+/* Trade Ledger header styles */
+.tl-header {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Trade Ledger logo styles */
+.tl-logo {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: white;
+  text-transform: uppercase;
+}
+
+/* Trade Ledger form styles */
+.tl-form-control {
+  margin-bottom: 20px;
+}
+
+.tl-form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.tl-form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+}
+
+.tl-form-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Trade Ledger table styles */
+.tl-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tl-table th {
+  background-color: #f5f5f5;
+  padding: 10px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.tl-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tl-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Trade Ledger status indicators */
+.tl-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tl-status-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.tl-status-warning {
+  background-color: #ff9800;
+  color: white;
+}
+
+.tl-status-error {
+  background-color: #f44336;
+  color: white;
+}
+
+.tl-status-info {
+  background-color: var(--primary-color);
+  color: white;
 }
