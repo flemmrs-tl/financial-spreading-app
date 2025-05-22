@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
-  Typography,
   IconButton,
   Box,
   Menu,
   MenuItem,
   Tooltip,
   Avatar,
+  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -20,8 +20,10 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { RootState } from '../../store';
 import { logout } from '../../features/auth/authSlice';
 import { toggleSidebar, toggleDarkMode } from '../../features/ui/uiSlice';
+import TradeLedgerLogo from '../brand/TradeLedgerLogo';
 
 const Header: React.FC = () => {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
@@ -58,7 +60,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <AppBar position="fixed">
+    <AppBar position="fixed" className="tl-header">
       <Toolbar>
         <IconButton
           color="inherit"
@@ -69,9 +71,27 @@ const Header: React.FC = () => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Financial Spreading Application
-        </Typography>
+        
+        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+          <TradeLedgerLogo
+            color="white"
+            sx={{ fontSize: { xs: 120, sm: 140, md: 160 }, mr: 1 }}
+          />
+          <Box sx={{ display: { xs: 'none', sm: 'block' }, ml: 1 }}>
+            <Box 
+              component="span" 
+              sx={{ 
+                fontSize: '1rem', 
+                fontWeight: 500, 
+                color: 'white',
+                opacity: 0.9,
+                ml: 1
+              }}
+            >
+              Financial Spreading
+            </Box>
+          </Box>
+        </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title={darkMode ? 'Light mode' : 'Dark mode'}>
@@ -83,7 +103,7 @@ const Header: React.FC = () => {
           <Box sx={{ ml: 2 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu}>
-                <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                <Avatar sx={{ bgcolor: theme.palette.secondary.main }}>
                   {user?.firstName?.[0] || user?.username?.[0] || <AccountCircleIcon />}
                 </Avatar>
               </IconButton>
@@ -103,12 +123,8 @@ const Header: React.FC = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem onClick={handleProfile}>
-                <Typography textAlign="center">Profile</Typography>
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <Typography textAlign="center">Logout</Typography>
-              </MenuItem>
+              <MenuItem onClick={handleProfile}>Profile</MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
           </Box>
         </Box>
