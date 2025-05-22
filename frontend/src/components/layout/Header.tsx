@@ -4,26 +4,33 @@ import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
-  Typography,
   IconButton,
   Box,
   Menu,
   MenuItem,
   Tooltip,
   Avatar,
+  useTheme,
+  Button,
+  useMediaQuery,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 import { RootState } from '../../store';
 import { logout } from '../../features/auth/authSlice';
 import { toggleSidebar, toggleDarkMode } from '../../features/ui/uiSlice';
+import TradeLedgerLogo from '../common/TradeLedgerLogo';
 
 const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const { user } = useSelector((state: RootState) => state.auth);
   const { darkMode } = useSelector((state: RootState) => state.ui);
 
@@ -57,8 +64,19 @@ const Header: React.FC = () => {
     // navigate('/profile');
   };
 
+  const getUserInitials = () => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`;
+    } else if (user?.firstName) {
+      return user.firstName[0];
+    } else if (user?.username) {
+      return user.username[0].toUpperCase();
+    }
+    return 'U';
+  };
+
   return (
-    <AppBar position="fixed">
+    <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
       <Toolbar>
         <IconButton
           color="inherit"
@@ -69,22 +87,40 @@ const Header: React.FC = () => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Financial Spreading Application
-        </Typography>
+        
+        {/* Logo */}
+        <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', mr: 2 }}>
+          <TradeLedgerLogo variant={isMobile ? 'mark' : 'full'} color="light" height={isMobile ? 30 : 36} />
+        </Box>
+        
+        <Box sx={{ flexGrow: 1 }} />
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Help button */}
+          <Tooltip title="Help & Support">
+            <IconButton color="inherit" sx={{ mr: 1 }}>
+              <HelpOutlineIcon />
+            </IconButton>
+          </Tooltip>
+
+          {/* Theme toggle */}
           <Tooltip title={darkMode ? 'Light mode' : 'Dark mode'}>
-            <IconButton color="inherit" onClick={handleToggleTheme}>
+            <IconButton color="inherit" onClick={handleToggleTheme} sx={{ mr: 1 }}>
               {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
           </Tooltip>
 
-          <Box sx={{ ml: 2 }}>
+          {/* User menu */}
+          <Box>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu}>
-                <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                  {user?.firstName?.[0] || user?.username?.[0] || <AccountCircleIcon />}
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar
+                  sx={{
+                    bgcolor: theme.palette.secondary.main,
+                    color: theme.palette.secondary.contrastText,
+                  }}
+                >
+                  {user ? getUserInitials() : <AccountCircleIcon />}
                 </Avatar>
               </IconButton>
             </Tooltip>
@@ -104,10 +140,10 @@ const Header: React.FC = () => {
               onClose={handleCloseUserMenu}
             >
               <MenuItem onClick={handleProfile}>
-                <Typography textAlign="center">Profile</Typography>
+                Profile
               </MenuItem>
               <MenuItem onClick={handleLogout}>
-                <Typography textAlign="center">Logout</Typography>
+                Logout
               </MenuItem>
             </Menu>
           </Box>
