@@ -1,0 +1,298 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String              @id @default(uuid())
+  username          String              @unique
+  email             String              @unique
+  passwordHash      String
+  firstName         String?
+  lastName          String?
+  role              Role                @relation(fields: [roleId], references: [id])
+  roleId            String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  lastLoginAt       DateTime?
+  documents         Document[]
+  financialStatements FinancialStatement[]
+  auditLogs         AuditLog[]
+  reports           Report[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+model Organization {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  industry    String?
+  taxId       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  clients     Client[]
+  chartOfAccounts ChartOfAccount[]
+
+  @@map("organizations")
+}
+
+model Client {
+  id              String    @id @default(uuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  name            String
+  taxId           String?
+  industryCode    String?
+  address         String?
+  contactInfo     Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  documents       Document[]
+  financialStatements FinancialStatement[]
+
+  @@map("clients")
+}
+
+model Document {
+  id                String      @id @default(uuid())
+  clientId          String
+  client            Client      @relation(fields: [clientId], references: [id])
+  documentTypeId    String
+  documentType      DocumentType @relation(fields: [documentTypeId], references: [id])
+  name              String
+  description       String?
+  filePath          String
+  fileSize          Int
+  mimeType          String
+  uploadDate        DateTime    @default(now())
+  status            String
+  processedById     String?
+  processedBy       User?       @relation(fields: [processedById], references: [id])
+  processingStatus  String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  pages             DocumentPage[]
+  financialStatements FinancialStatement[]
+
+  @@map("documents")
+}
+
+model DocumentType {
+  id                String    @id @default(uuid())
+  name              String    @unique
+  description       String?
+  processingTemplate Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  documents         Document[]
+
+  @@map("document_types")
+}
+
+model DocumentPage {
+  id              String    @id @default(uuid())
+  documentId      String
+  document        Document  @relation(fields: [documentId], references: [id])
+  pageNumber      Int
+  contentText     String?
+  ocrConfidence   Float?
+  imagePath       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("document_pages")
+}
+
+model FinancialStatement {
+  id                String    @id @default(uuid())
+  clientId          String
+  client            Client    @relation(fields: [clientId], references: [id])
+  documentId        String
+  document          Document  @relation(fields: [documentId], references: [id])
+  statementType     String    // balance_sheet, income_statement, cash_flow
+  periodStartDate   DateTime?
+  periodEndDate     DateTime
+  timePeriodMonths  Int
+  fiscalYear        Int
+  currency          String
+  status            String
+  createdById       String
+  createdBy         User      @relation(fields: [createdById], references: [id])
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lineItems         FinancialLineItem[]
+  ratios            FinancialRatio[]
+
+  @@map("financial_statements")
+}
+
+model ChartOfAccount {
+  id                String    @id @default(uuid())
+  parentId          String?
+  parent            ChartOfAccount? @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children          ChartOfAccount[] @relation("AccountHierarchy")
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id])
+  accountCode       String
+  accountName       String
+  accountType       String
+  category          String
+  subcategory       String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lineItems         FinancialLineItem[]
+
+  @@unique([organizationId, accountCode])
+  @@map("chart_of_accounts")
+}
+
+model FinancialLineItem {
+  id                String    @id @default(uuid())
+  statementId       String
+  statement         FinancialStatement @relation(fields: [statementId], references: [id])
+  accountId         String
+  account           ChartOfAccount @relation(fields: [accountId], references: [id])
+  amount            Float
+  normalizedAmount  Float?
+  originalText      String?
+  confidenceScore   Float?
+  isManualOverride  Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("financial_line_items")
+}
+
+model FinancialRatio {
+  id                String    @id @default(uuid())
+  statementId       String
+  statement         FinancialStatement @relation(fields: [statementId], references: [id])
+  ratioType         String
+  value             Float
+  industryAverage   Float?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("financial_ratios")
+}
+
+model AnalysisTemplate {
+  id                String    @id @default(uuid())
+  name              String
+  description       String?
+  industry          String?
+  templateData      Json
+  isActive          Boolean   @default(true)
+  createdById       String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  rules             TemplateRule[]
+
+  @@map("analysis_templates")
+}
+
+model TemplateRule {
+  id                String    @id @default(uuid())
+  templateId        String
+  template          AnalysisTemplate @relation(fields: [templateId], references: [id])
+  ruleType          String
+  condition         String
+  action            String
+  priority          Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("template_rules")
+}
+
+model IntegrationSource {
+  id                String    @id @default(uuid())
+  name              String
+  description       String?
+  connectionDetails Json
+  status            String
+  lastSyncAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  logs              IntegrationLog[]
+
+  @@map("integration_sources")
+}
+
+model IntegrationLog {
+  id                String    @id @default(uuid())
+  sourceId          String
+  source            IntegrationSource @relation(fields: [sourceId], references: [id])
+  operation         String
+  status            String
+  message           String?
+  details           Json?
+  createdAt         DateTime  @default(now())
+
+  @@map("integration_logs")
+}
+
+model AuditLog {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  action            String
+  entityType        String
+  entityId          String
+  details           Json?
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime  @default(now())
+
+  @@map("audit_logs")
+}
+
+model Report {
+  id                String    @id @default(uuid())
+  name              String
+  description       String?
+  reportType        String
+  parameters        Json?
+  createdById       String
+  createdBy         User      @relation(fields: [createdById], references: [id])
+  schedule          String?
+  lastGeneratedAt   DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  executions        ReportExecution[]
+
+  @@map("reports")
+}
+
+model ReportExecution {
+  id                String    @id @default(uuid())
+  reportId          String
+  report            Report    @relation(fields: [reportId], references: [id])
+  status            String
+  resultFilePath    String?
+  executionTime     Int?      // in milliseconds
+  createdAt         DateTime  @default(now())
+
+  @@map("report_executions")
+}
