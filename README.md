@@ -26,7 +26,16 @@ The Financial Spreading Application is designed to automate and enhance the proc
 
 ## Development Setup
 
-*Detailed setup instructions will be added as the project develops.*
+# If using Docker
+docker compose up
+
+# Or manually
+cd backend
+npm run dev
+
+# In another terminal
+cd frontend
+npm start
 
 ## Contributing
 
